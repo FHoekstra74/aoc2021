@@ -22,6 +22,8 @@ mkdir -p ../go/day$1
 cat <<EOT > $gofile
 package main
 
+var testinput = []$2{}
+
 var input = []$2{
 EOT
 if [ "$2" = "string" ]; then
@@ -41,6 +43,8 @@ import (
 )
 
 func main() {
+    _, _ = input, testinput
+
     fmt.Println(input)
 }
 EOT
