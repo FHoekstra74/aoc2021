@@ -50,17 +50,14 @@ func main() {
 		if dx == dy {
 			for i := 0; i <= dx; i++ {
 				px, py := x1, y1
-				if x1 > x2 && y1 < y2 {
-					px -= i
-					py += i
-				} else if x1 > x2 && y1 > y2 {
-					px -= i
-					py -= i
-				} else if x1 < x2 && y1 < y2 {
+				if x1 < x2 {
 					px += i
+				} else {
+					px -= i
+				}
+				if y1 < y2 {
 					py += i
-				} else if x1 < x2 && y1 > y2 {
-					px += i
+				} else {
 					py -= i
 				}
 				p := points[point{px, py}]
