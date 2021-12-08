@@ -18,44 +18,40 @@ func main() {
 }
 
 func decode(patterns string, output string) (unique int, outputval int) {
-	org, decoded, decodemap, out := [10]string{}, [10]string{}, make(map[string]int), strings.Split(output, " ")
-	for i, j := range strings.Split(patterns, " ") {
-		sorted := day8sort(j)
-		switch len(sorted) {
+	todo, decoded, decodedmap, out := []string{}, [10]string{}, make(map[string]int), strings.Split(output, " ")
+	for _, j := range strings.Split(patterns, " ") {
+		switch len(j) {
 		case 2:
-			decoded[1] = sorted
+			decoded[1] = day8sort(j)
 		case 4:
-			decoded[4] = sorted
+			decoded[4] = day8sort(j)
 		case 3:
-			decoded[7] = sorted
+			decoded[7] = day8sort(j)
 		case 7:
-			decoded[8] = sorted
+			decoded[8] = day8sort(j)
 		default:
-			org[i] = sorted
+			todo = append(todo, day8sort(j))
 		}
 	}
-	for i, j := range org {
-		if len(j) == 6 && day8contains(j, decoded[1]) && day8contains(j, decoded[4]) && day8contains(j, decoded[7]) {
+	for i, j := range todo {
+		if len(j) == 6 && day8contains(j, decoded[4]) {
 			decoded[9] = j
-			org[i] = ""
-		}
-	}
-	for i, j := range org {
-		if len(j) == 6 && day8contains(j, decoded[1]) {
+			todo[i] = ""
+		} else if len(j) == 6 && day8contains(j, decoded[1]) {
 			decoded[0] = j
-			org[i] = ""
+			todo[i] = ""
 		}
 	}
-	for i, j := range org {
+	for i, j := range todo {
 		if len(j) == 5 && day8contains(j, decoded[1]) {
 			decoded[3] = j
-			org[i] = ""
+			todo[i] = ""
 		} else if len(j) == 6 {
 			decoded[6] = j
-			org[i] = ""
+			todo[i] = ""
 		}
 	}
-	for _, j := range org {
+	for _, j := range todo {
 		z := 0
 		for _, c := range decoded[6] {
 			if strings.Contains(j, string(c)) {
@@ -69,13 +65,13 @@ func decode(patterns string, output string) (unique int, outputval int) {
 		}
 	}
 	for i, j := range decoded {
-		decodemap[j] = i
+		decodedmap[j] = i
 	}
 	for i, j := range []int{1000, 100, 10, 1} {
 		if len(out[i]) == 2 || len(out[i]) == 4 || len(out[i]) == 3 || len(out[i]) == 7 {
 			unique++
 		}
-		outputval += decodemap[day8sort(out[i])] * j
+		outputval += decodedmap[day8sort(out[i])] * j
 	}
 	return unique, outputval
 }
