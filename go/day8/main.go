@@ -7,37 +7,30 @@ import (
 
 func main() {
 	_, _ = input, testinput
-	a, b := 0, 0
+	a, b, onea, oneb := 0, 0, 0, 0
 	for _, i := range input {
-		t := strings.TrimSpace(strings.Split(i, "|")[1])
-		for _, j := range strings.Split(t, " ") {
-			if len(j) == 2 || len(j) == 4 || len(j) == 3 || len(j) == 7 {
-				a++
-			}
-		}
+		onea, oneb = decode(strings.TrimSpace(strings.Split(i, "|")[0]), strings.TrimSpace(strings.Split(i, "|")[1]))
+		a += onea
+		b += oneb
 	}
 	fmt.Println(a)
-	for _, i := range input {
-		t := strings.Split(i, "|")
-		b += decode(strings.TrimSpace(t[0]), strings.TrimSpace(t[1]))
-	}
 	fmt.Println(b)
 }
 
-func decode(patterns string, output string) int {
-	var org = [10]string{}
-	var decoded = [10]string{}
+func decode(patterns string, output string) (unique int, outputval int) {
+	org, decoded, decodemap, out := [10]string{}, [10]string{}, make(map[string]int), strings.Split(output, " ")
 	for i, j := range strings.Split(patterns, " ") {
 		sorted := day8sort(j)
-		if len(sorted) == 2 {
+		switch len(sorted) {
+		case 2:
 			decoded[1] = sorted
-		} else if len(sorted) == 4 {
+		case 4:
 			decoded[4] = sorted
-		} else if len(sorted) == 3 {
+		case 3:
 			decoded[7] = sorted
-		} else if len(sorted) == 7 {
+		case 7:
 			decoded[8] = sorted
-		} else {
+		default:
 			org[i] = sorted
 		}
 	}
@@ -63,41 +56,28 @@ func decode(patterns string, output string) int {
 		}
 	}
 	for _, j := range org {
-		if len(j) > 0 {
-			z := 0
-			for _, c := range decoded[6] {
-				if strings.Contains(j, string(c)) {
-					z += 1
-				}
-			}
-			if z == 5 {
-				decoded[5] = j
-			} else {
-				decoded[2] = j
+		z := 0
+		for _, c := range decoded[6] {
+			if strings.Contains(j, string(c)) {
+				z += 1
 			}
 		}
-	}
-	res := 0
-	for k, j := range strings.Split(output, " ") {
-		sorted := day8sort(j)
-		for i, j := range decoded {
-			if j == sorted {
-				if k == 0 {
-					res += i * 1000
-				}
-				if k == 1 {
-					res += i * 100
-				}
-				if k == 2 {
-					res += i * 10
-				}
-				if k == 3 {
-					res += i * 1
-				}
-			}
+		if z == 5 {
+			decoded[5] = j
+		} else if z == 4 {
+			decoded[2] = j
 		}
 	}
-	return res
+	for i, j := range decoded {
+		decodemap[j] = i
+	}
+	for i, j := range []int{1000, 100, 10, 1} {
+		if len(out[i]) == 2 || len(out[i]) == 4 || len(out[i]) == 3 || len(out[i]) == 7 {
+			unique++
+		}
+		outputval += decodemap[day8sort(out[i])] * j
+	}
+	return unique, outputval
 }
 
 func day8contains(input string, teststring string) bool {
@@ -109,8 +89,7 @@ func day8contains(input string, teststring string) bool {
 	return true
 }
 
-func day8sort(input string) string {
-	sorted := ""
+func day8sort(input string) (sorted string) {
 	var chars = [7]string{"a", "b", "c", "d", "e", "f", "g"}
 	for _, c := range chars {
 		if strings.Contains(input, c) {
