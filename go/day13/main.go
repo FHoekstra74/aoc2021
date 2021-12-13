@@ -7,81 +7,47 @@ import (
 )
 
 type point struct {
-	x int
-	y int
-}
-
-type foldinstruction struct {
-	line string
-	pos  int
+	x, y int
 }
 
 func main() {
 	_, _ = input, testinput
-	var grid = []point{}
-	var folds = []foldinstruction{}
+	grid, xsize, ysize, a := make(map[point]bool), 1000, 1000, 0
 	for _, j := range input {
-		if len(j) > 0 {
-			if strings.HasPrefix(j, "fold") {
-				instr := strings.Split(j, " ")[2]
-				l := strings.Split(instr, "=")[0]
-				pos, _ := strconv.Atoi(strings.Split(instr, "=")[1])
-				folds = append(folds, foldinstruction{l, pos})
+		if len(j) > 0 && !strings.HasPrefix(j, "fold") {
+			x, _ := strconv.Atoi(strings.Split(j, ",")[0])
+			y, _ := strconv.Atoi(strings.Split(j, ",")[1])
+			grid[point{x, y}] = true
+		} else if len(j) > 0 {
+			direction := strings.Split(strings.Split(j, " ")[2], "=")[0]
+			pos, _ := strconv.Atoi(strings.Split(strings.Split(j, " ")[2], "=")[1])
+			newgrid := make(map[point]bool)
+			for j := range grid {
+				newx, newy := j.x, j.y
+				if direction == "y" && j.y > pos {
+					newy = pos - (j.y - pos)
+				} else if direction == "x" && j.x > pos {
+					newx = pos - (j.x - pos)
+				}
+				newgrid[point{newx, newy}] = true
+			}
+			grid = newgrid
+			if a == 0 {
+				a = len(grid)
+			}
+			if direction == "x" {
+				xsize = pos
 			} else {
-				x, _ := strconv.Atoi(strings.Split(j, ",")[0])
-				y, _ := strconv.Atoi(strings.Split(j, ",")[1])
-				grid = append(grid, point{x, y})
+				ysize = pos
 			}
 		}
 	}
-	for i, j := range folds {
-		grid = dofold(grid, j)
-		if i == 0 {
-			fmt.Println("A: ", len(grid))
-		}
-	}
-	print(grid)
-}
-
-func dofold(grid []point, instruction foldinstruction) []point {
-	var res = []point{}
-	for _, j := range grid {
-		newx, newy := j.x, j.y
-		if instruction.line == "y" && j.y > instruction.pos {
-			newy = instruction.pos - (j.y - instruction.pos)
-		} else if instruction.line == "x" && j.x > instruction.pos {
-			newx = instruction.pos - (j.x - instruction.pos)
-		}
-		if !exists(res, newx, newy) {
-			res = append(res, point{newx, newy})
-		}
-	}
-	return res
-}
-
-func exists(grid []point, x int, y int) bool {
-	for _, i := range grid {
-		if i.x == x && i.y == y {
-			return true
-		}
-	}
-	return false
-}
-
-func print(grid []point) {
-	maxx, maxy := 0, 0
-	for _, i := range grid {
-		if i.x > maxx {
-			maxx = i.x
-		}
-		if i.y > maxy {
-			maxy = i.y
-		}
-	}
-	for y := 0; y <= maxy; y++ {
+	fmt.Println("A: ", a)
+	for y := 0; y < ysize; y++ {
 		line := ""
-		for x := 0; x <= maxx; x++ {
-			if exists(grid, x, y) {
+		for x := 0; x < xsize; x++ {
+			_, exists := grid[point{x, y}]
+			if exists {
 				line += "#"
 			} else {
 				line += " "
