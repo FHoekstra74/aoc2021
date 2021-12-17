@@ -6,7 +6,7 @@ import (
 
 func main() {
 	a, b := 0, 0
-	for i := -500; i < 500; i++ {
+	for i := 1; i < 250; i++ {
 		for j := -500; j < 500; j++ {
 			top, hit := check(i, j)
 			if hit {
